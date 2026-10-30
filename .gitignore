@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+functions/node_modules/
+
+# Build output
+dist/
+functions/lib/
+.vite/
+
+# Android build output and local configuration
+android/.gradle/
+android/.idea/
+android/local.properties
+android/build/
+android/app/build/
+android/app/src/main/assets/www/
+*.jks
+*.keystore
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+.firebaserc
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+serviceAccountKey.json
+*-service-account.json
+
+# Artifacts and design working files
+design-assets/
+coverage/
+playwright-report/
+test-results/
+qa-screenshots/
+qa-report.json
+qa-a11y-report.json
+*.tsbuildinfo
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
