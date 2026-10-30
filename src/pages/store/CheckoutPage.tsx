@@ -206,7 +206,7 @@ export function CheckoutPage() {
       navigate(`/checkout/success/${order.id}`, { replace: true });
     } catch (error) {
       setFormError(errorMessage(error));
-      idempotency.current = makeIdempotencyKey();
+      // Keep the same key after an unknown network result to avoid duplicate orders.
     } finally {
       setPlacing(false);
     }

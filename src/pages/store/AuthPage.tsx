@@ -20,7 +20,7 @@ type Mode = 'login' | 'register' | 'forgot' | 'reset';
 const MODE_COPY: Record<Mode, { eyebrow: string; title: string; subtitle: string }> = {
   login: { eyebrow: 'კეთილი იყოს თქვენი დაბრუნება', title: 'შესვლა', subtitle: 'გაიარეთ ავტორიზაცია შეკვეთების, რჩეულებისა და მისამართების სამართავად.' },
   register: { eyebrow: 'შექმენით ანგარიში', title: 'რეგისტრაცია', subtitle: 'შეინახეთ რჩეულები, თვალყური ადევნეთ შეკვეთებს და ისარგებლეთ სწრაფი გადახდით.' },
-  forgot: { eyebrow: 'პაროლის აღდგენა', title: 'დაგავიწყდათ პაროლი?', subtitle: 'შეიყვანეთ ელფოსტა და გამოგიგზავნით აღდგენის კოდს.' },
+  forgot: { eyebrow: 'პაროლის აღდგენა', title: 'დაგავიწყდათ პაროლი?', subtitle: 'შეიყვანეთ ელფოსტა და გამოგიგზავნით პაროლის აღდგენის ბმულს.' },
   reset: { eyebrow: 'ბოლო ნაბიჯი', title: 'ახალი პაროლი', subtitle: 'შეიყვანეთ ელფოსტაზე მიღებული კოდი და აირჩიეთ ახალი პაროლი.' },
 };
 
@@ -32,7 +32,7 @@ function roleHome(role: string | undefined) {
 
 export function AuthPage() {
   const [params, setParams] = useSearchParams();
-  const mode = (params.get('mode') as Mode) || 'login';
+  const mode = (params.get('mode') === 'resetPassword' ? 'reset' : params.get('mode') as Mode) || 'login';
   const next = params.get('next') ?? '';
   const snapshot = useBackendSnapshot();
   const navigate = useNavigate();
@@ -45,7 +45,7 @@ export function AuthPage() {
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(params.get('oobCode') ?? '');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState('');
@@ -123,6 +123,10 @@ export function AuthPage() {
       try {
         const result = await backend.requestPasswordReset(email.trim());
         setDeliveredEmail(email.trim());
+        if (snapshot.backendMode === 'firebase') {
+          toast('ბმული გამოგზავნილია', { message: 'პაროლი შეცვალეთ ელფოსტაზე მიღებული ბმულით.' });
+          return;
+        }
         if (result.demoCode) setDemoCode(result.demoCode);
         setMode('reset');
         const nextParams = new URLSearchParams(params);
@@ -141,7 +145,7 @@ export function AuthPage() {
     if (mode === 'reset') {
       const errors: Record<string, string> = {};
       if (!email.trim()) errors.email = 'შეიყვანეთ ელფოსტა.';
-      if (!/^\d{6}$/.test(code.trim())) errors.code = 'კოდი შედგება 6 ციფრისგან.';
+      if (snapshot.backendMode === 'demo' ? !/^\d{6}$/.test(code.trim()) : !code.trim()) errors.code = 'აღდგენის კოდი არასწორია.';
       const passwordResult = passwordSchema.safeParse(password);
       if (!passwordResult.success) errors.password = passwordResult.error.issues[0]?.message ?? 'პაროლი არასწორია.';
       if (password !== confirmPassword) errors.confirmPassword = 'პაროლები არ ემთხვევა.';
@@ -204,7 +208,8 @@ export function AuthPage() {
             <h1 className="mt-3 font-display text-5xl font-light tracking-display">{copy.title}</h1>
             <p className="mt-4 text-[12px] leading-relaxed text-ink/65">{copy.subtitle}</p>
 
-            {mode === 'reset' && (demoCode || deliveredEmail) && (
+            {snapshot.backendMode === 'firebase' && deliveredEmail && <div className="mt-6"><InlineNotice tone="success">პაროლის აღდგენის ბმული გაიგზავნა {deliveredEmail}-ზე. გახსენით მიღებული ბმული.</InlineNotice></div>}
+            {snapshot.backendMode === 'demo' && mode === 'reset' && (demoCode || deliveredEmail) && (
               <div className="mt-6">
                 <InlineNotice tone="warning">
                   დემო რეჟიმი: პაროლის აღდგენის კოდია <strong className="font-semibold tracking-[0.2em]">{demoCode || '—'}</strong>.
@@ -237,7 +242,7 @@ export function AuthPage() {
               {mode === 'reset' && (
                 <>
                   <Input label="ელფოსტა" type="email" value={email} onChange={(event) => setEmail(event.target.value)} error={errors.email} autoComplete="email" required />
-                  <Input label="აღდგენის კოდი" value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))} error={errors.code} inputMode="numeric" autoComplete="one-time-code" placeholder="000000" required />
+                  <Input label="აღდგენის კოდი" value={code} onChange={(event) => setCode(snapshot.backendMode === 'demo' ? event.target.value.replace(/\D/g, '').slice(0, 6) : event.target.value)} error={errors.code} inputMode="numeric" autoComplete="one-time-code" placeholder="000000" required />
                 </>
               )}
 
@@ -301,7 +306,7 @@ export function AuthPage() {
               )}
 
               <Button type="submit" size="lg" className="w-full" loading={loading}>
-                {mode === 'login' ? 'შესვლა' : mode === 'register' ? 'ანგარიშის შექმნა' : mode === 'forgot' ? 'კოდის გაგზავნა' : 'პაროლის შეცვლა'}
+                {mode === 'login' ? 'შესვლა' : mode === 'register' ? 'ანგარიშის შექმნა' : mode === 'forgot' ? (snapshot.backendMode === 'firebase' ? 'ბმულის გაგზავნა' : 'კოდის გაგზავნა') : 'პაროლის შეცვლა'}
               </Button>
             </form>
 

@@ -1,5 +1,7 @@
 import type { DeliveryMethod, Money, Promotion, StoreSettings } from '@/lib/types';
 
+export const roundMoney = (value: number): Money => Math.round((value + Number.EPSILON) * 100) / 100;
+
 export interface PricedLine {
   unitPrice: Money;
   quantity: number;
@@ -13,16 +15,17 @@ export interface PromoEvaluation {
 }
 
 export function calculateSubtotal(lines: PricedLine[]): Money {
-  return lines.reduce((total, line) => total + line.unitPrice * Math.max(0, line.quantity), 0);
+  return roundMoney(lines.reduce((total, line) => total + line.unitPrice * Math.max(0, line.quantity), 0));
 }
 
 export function calculatePromoDiscount(promotion: Promotion, subtotal: Money): Money {
   if (subtotal <= 0) return 0;
+  const cap = promotion.maxDiscount && promotion.maxDiscount > 0 ? promotion.maxDiscount : subtotal;
   if (promotion.type === 'percent') {
     const percent = Math.min(100, Math.max(0, promotion.value));
-    return Math.round((subtotal * percent) / 100);
+    return roundMoney(Math.min(cap, (subtotal * percent) / 100));
   }
-  return Math.min(subtotal, Math.max(0, promotion.value));
+  return roundMoney(Math.min(cap, subtotal, Math.max(0, promotion.value)));
 }
 
 export function evaluatePromotion(
@@ -53,7 +56,7 @@ export function evaluatePromotion(
     return {
       valid: false,
       discount: 0,
-      reason: `მინიმალური შეკვეთა — ${(promotion.minOrder / 100).toFixed(0)} ₾.`,
+      reason: `მინიმალური შეკვეთა — ${promotion.minOrder.toFixed(2)} ₾.`,
     };
   }
   if (promotion.usageLimit > 0 && promotion.usageCount >= promotion.usageLimit) {
@@ -110,7 +113,7 @@ export function computeOrderTotals(params: {
     subtotal,
     discountTotal,
     shippingFee,
-    total: discountedSubtotal + shippingFee,
+    total: roundMoney(discountedSubtotal + shippingFee),
     promo,
   };
 }

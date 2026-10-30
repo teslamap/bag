@@ -13,7 +13,7 @@ export function createSeed(now = new Date()): SeedResult {
   settings: {
    storeName: 'MAKU', tagline: 'ობიექტები, რომლებიც დროს უძლებს',
    supportEmail: '', supportPhone: '', address: '', currency: 'GEL',
-   freeShippingThreshold: 30000, standardShippingFee: 1500, expressShippingFee: 3000,
+   freeShippingThreshold: 300, standardShippingFee: 15, expressShippingFee: 30,
    codEnabled: true, codInstructions: '', lowStockThreshold: 3, announcement: '',
    instagramUrl: '', facebookUrl: '', updatedAt: now.toISOString(),
   },

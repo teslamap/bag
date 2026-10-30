@@ -107,7 +107,7 @@ export function AdminCustomersPage() {
       ['ID', 'სახელი', 'ელფოსტა', 'ტელეფონი', 'სტატუსი', 'შეკვეთები', 'დახარჯული (₾)', 'რეგისტრაცია'],
       filtered.map((user) => {
         const stats = customerStats.get(user.id);
-        return [user.id, getFullName(user), user.email, user.phone, user.status, stats?.orders ?? 0, ((stats?.spent ?? 0) / 100).toFixed(2), user.createdAt];
+        return [user.id, getFullName(user), user.email, user.phone, user.status, stats?.orders ?? 0, ((stats?.spent ?? 0)).toFixed(2), user.createdAt];
       }),
     );
   };

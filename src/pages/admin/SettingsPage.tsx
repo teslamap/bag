@@ -132,7 +132,7 @@ export function AdminSettingsPage() {
       <AdminPageHeader
         eyebrow="სისტემა"
         title="პარამეტრები"
-        description="მაღაზიის იდენტობა, მიწოდება, COD და ოპერაციული ზღვრები. ცვლილებები დაუყოვნებლივ აისახება storefront-ზე."
+        description="მაღაზიის ადმინისტრაციული კონფიგურაცია. არსებული MAKU-ს მიწოდების ტარიფები შენარჩუნებულია."
         actions={<AdminButton size="sm" loading={saving} leftIcon={<Save className="h-3.5 w-3.5" aria-hidden />} onClick={() => void save()}>შენახვა</AdminButton>}
       />
 
@@ -158,16 +158,16 @@ export function AdminSettingsPage() {
 
           <AdminPanel title="მიწოდება და გადახდა" eyebrow="კომერცია" action={<Truck className="h-4 w-4 text-[var(--text-secondary)]" aria-hidden />}>
             <div className="grid gap-4 sm:grid-cols-3">
-              <AdminInput label="უფასო მიწოდება ₾-დან" inputMode="decimal" value={form.freeShippingThreshold} onChange={(event) => setForm({ ...form, freeShippingThreshold: event.target.value })} error={errors.freeShippingThreshold} hint={formatMoney(parseMoneyInput(form.freeShippingThreshold))} />
-              <AdminInput label="სტანდარტული (₾)" inputMode="decimal" value={form.standardShippingFee} onChange={(event) => setForm({ ...form, standardShippingFee: event.target.value })} error={errors.standardShippingFee} hint={formatMoney(parseMoneyInput(form.standardShippingFee))} />
-              <AdminInput label="ექსპრეს (₾)" inputMode="decimal" value={form.expressShippingFee} onChange={(event) => setForm({ ...form, expressShippingFee: event.target.value })} error={errors.expressShippingFee} hint={formatMoney(parseMoneyInput(form.expressShippingFee))} />
+              <AdminInput disabled={snapshot.backendMode === 'firebase'} label="უფასო მიწოდება ₾-დან" inputMode="decimal" value={form.freeShippingThreshold} onChange={(event) => setForm({ ...form, freeShippingThreshold: event.target.value })} error={errors.freeShippingThreshold} hint={formatMoney(parseMoneyInput(form.freeShippingThreshold))} />
+              <AdminInput disabled={snapshot.backendMode === 'firebase'} label="სტანდარტული (₾)" inputMode="decimal" value={form.standardShippingFee} onChange={(event) => setForm({ ...form, standardShippingFee: event.target.value })} error={errors.standardShippingFee} hint={formatMoney(parseMoneyInput(form.standardShippingFee))} />
+              <AdminInput disabled={snapshot.backendMode === 'firebase'} label="ექსპრეს (₾)" inputMode="decimal" value={form.expressShippingFee} onChange={(event) => setForm({ ...form, expressShippingFee: event.target.value })} error={errors.expressShippingFee} hint={formatMoney(parseMoneyInput(form.expressShippingFee))} />
             </div>
             <div className="mt-4 rounded-lg border border-[var(--line)] p-3">
               <label className="flex cursor-pointer items-start gap-3">
-                <input type="checkbox" checked={form.codEnabled} onChange={(event) => setForm({ ...form, codEnabled: event.target.checked })} className="mt-0.5 h-4 w-4 accent-[#c6aa82]" />
+                <input type="checkbox" disabled={snapshot.backendMode === 'firebase'} checked={form.codEnabled} onChange={(event) => setForm({ ...form, codEnabled: event.target.checked })} className="mt-0.5 h-4 w-4 accent-[#c6aa82]" />
                 <span>
                   <span className="block text-[11px] font-medium text-[var(--text-primary)]">გადახდა მიღებისას (COD)</span>
-                  <span className="mt-0.5 block text-[9px] leading-relaxed text-[var(--text-secondary)]">გამორთვისას ახალი შეკვეთების გაფორმება შეუძლებელი იქნება.</span>
+                  <span className="mt-0.5 block text-[9px] leading-relaxed text-[var(--text-secondary)]">პირობები ორივე საიტისთვის ერთად უნდა განახლდეს.</span>
                 </span>
               </label>
               <AdminField label="COD ინსტრუქცია" error={errors.codInstructions} className="mt-3">
@@ -208,7 +208,7 @@ export function AdminSettingsPage() {
             </dl>
             <div className="mt-4 rounded-lg border border-[var(--line)] bg-[var(--surface-hover)]/50 p-3 text-[9px] leading-relaxed text-[var(--text-secondary)]">
               <p className="flex items-center gap-1.5 text-[var(--text-primary)]"><LockKeyhole className="h-3 w-3" aria-hidden /> ბექენდი: {snapshot.backendMode === 'demo' ? 'დემო (ლოკალური)' : 'Firebase'}</p>
-              <p className="mt-1.5">ფასები ინახება თეთრებში. ყველა ჯამი სერვერზე გადამოწმდება შეკვეთის შექმნისას.</p>
+              <p className="mt-1.5">ფასები ინახება ლარებში. შეკვეთები იყენებს არსებული MAKU-ს წესებს; მარაგს თანამშრომელი მართავს.</p>
             </div>
           </AdminPanel>
 
@@ -220,7 +220,7 @@ export function AdminSettingsPage() {
             </ul>
           </AdminPanel>
 
-          <AdminPanel title="დემო გარემო" eyebrow="საშიში ზონა">
+          {snapshot.backendMode === 'demo' && <AdminPanel title="დემო გარემო" eyebrow="საშიში ზონა">
             <p className="text-[10px] leading-relaxed text-[var(--text-secondary)]">
               დემო რეჟიმში მონაცემები ინახება ამ ბრაუზერში. აღდგენა წაშლის ყველა ცვლილებას — პროდუქტებს, შეკვეთებს, მომხმარებლებსა და პარამეტრებს — და დაგაბრუნებთ საწყის მონაცემებზე.
             </p>
@@ -229,7 +229,7 @@ export function AdminSettingsPage() {
               ეს მოქმედება შეუქცევადია.
             </div>
             <AdminButton variant="danger" size="sm" className="mt-3" leftIcon={<RotateCcw className="h-3.5 w-3.5" aria-hidden />} onClick={() => setResetOpen(true)}>დემოს აღდგენა</AdminButton>
-          </AdminPanel>
+          </AdminPanel>}
         </div>
       </div>
 

@@ -343,7 +343,7 @@ export function AdminOrderDetailPage({ basePath = '/admin', managerMode = false 
         open={cancelOpen}
         onClose={() => setCancelOpen(false)}
         title="შეკვეთის გაუქმება"
-        description="გაუქმებისას პროდუქტების მარაგი ავტომატურად აღდგება."
+        description="გაუქმების შემდეგ საჭიროების შემთხვევაში მარაგი ცალკე განაახლეთ."
         size="sm"
         footer={
           <div className="flex justify-end gap-2">

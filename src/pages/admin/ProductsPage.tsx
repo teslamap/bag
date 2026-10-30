@@ -91,7 +91,7 @@ export function AdminProductsPage({ basePath = '/admin', canManage = true }: { b
     downloadCsv(
       'maku-products.csv',
       ['ID', 'სახელი', 'SKU', 'კატეგორია', 'ფასი (₾)', 'მარაგი', 'სტატუსი', 'განახლდა'],
-      filtered.map((product) => [product.id, product.name, product.sku, categoryName(product.categoryId), (product.price / 100).toFixed(2), getProductStock(product), product.status, product.updatedAt]),
+      filtered.map((product) => [product.id, product.name, product.sku, categoryName(product.categoryId), (product.price).toFixed(2), getProductStock(product), product.status, product.updatedAt]),
     );
   };
 

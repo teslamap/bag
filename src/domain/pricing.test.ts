@@ -14,9 +14,9 @@ const settings: Pick<
   StoreSettings,
   'freeShippingThreshold' | 'standardShippingFee' | 'expressShippingFee'
 > = {
-  freeShippingThreshold: 30_000,
-  standardShippingFee: 1_500,
-  expressShippingFee: 3_000,
+  freeShippingThreshold: 300,
+  standardShippingFee: 15,
+  expressShippingFee: 30,
 };
 
 function promotion(overrides: Partial<Promotion> = {}): Promotion {
@@ -26,7 +26,7 @@ function promotion(overrides: Partial<Promotion> = {}): Promotion {
     description: 'ტესტ პრომოკოდი',
     type: 'percent',
     value: 10,
-    minOrder: 10_000,
+    minOrder: 100,
     startsAt: '2026-01-01T00:00:00.000Z',
     endsAt: '2026-12-31T23:59:59.000Z',
     usageLimit: 100,
@@ -43,11 +43,11 @@ describe('calculateSubtotal', () => {
   it('sums line totals and ignores negative quantities', () => {
     expect(
       calculateSubtotal([
-        { unitPrice: 12_000, quantity: 2 },
-        { unitPrice: 5_000, quantity: 1 },
-        { unitPrice: 9_000, quantity: -4 },
+        { unitPrice: 120, quantity: 2 },
+        { unitPrice: 50, quantity: 1 },
+        { unitPrice: 90, quantity: -4 },
       ]),
-    ).toBe(29_000);
+    ).toBe(290);
   });
 
   it('returns zero for an empty basket', () => {
@@ -56,18 +56,18 @@ describe('calculateSubtotal', () => {
 });
 
 describe('calculatePromoDiscount', () => {
-  it('rounds percentage discounts to whole tetri', () => {
-    expect(calculatePromoDiscount(promotion({ value: 15 }), 12_345)).toBe(1_852);
+  it('rounds percentage discounts to two decimal GEL', () => {
+    expect(calculatePromoDiscount(promotion({ value: 15 }), 123.45)).toBe(18.52);
   });
 
   it('clamps percentage values to 0–100', () => {
-    expect(calculatePromoDiscount(promotion({ value: 180 }), 10_000)).toBe(10_000);
-    expect(calculatePromoDiscount(promotion({ value: -20 }), 10_000)).toBe(0);
+    expect(calculatePromoDiscount(promotion({ value: 180 }), 100)).toBe(100);
+    expect(calculatePromoDiscount(promotion({ value: -20 }), 100)).toBe(0);
   });
 
   it('caps fixed discounts at the subtotal', () => {
-    expect(calculatePromoDiscount(promotion({ type: 'fixed', value: 5_000 }), 3_200)).toBe(3_200);
-    expect(calculatePromoDiscount(promotion({ type: 'fixed', value: 5_000 }), 20_000)).toBe(5_000);
+    expect(calculatePromoDiscount(promotion({ type: 'fixed', value: 50 }), 32)).toBe(32);
+    expect(calculatePromoDiscount(promotion({ type: 'fixed', value: 50 }), 200)).toBe(50);
   });
 
   it('never discounts an empty subtotal', () => {
@@ -77,39 +77,39 @@ describe('calculatePromoDiscount', () => {
 
 describe('evaluatePromotion', () => {
   it('accepts a live promotion above the minimum order', () => {
-    const result = evaluatePromotion(promotion(), 25_000, { now: NOW });
+    const result = evaluatePromotion(promotion(), 250, { now: NOW });
     expect(result.valid).toBe(true);
-    expect(result.discount).toBe(2_500);
+    expect(result.discount).toBe(25);
     expect(result.promotion?.code).toBe('TEST10');
   });
 
   it('rejects unknown, inactive, expired and not-yet-started promotions', () => {
-    expect(evaluatePromotion(undefined, 20_000, { now: NOW }).valid).toBe(false);
-    expect(evaluatePromotion(promotion({ active: false }), 20_000, { now: NOW }).valid).toBe(false);
+    expect(evaluatePromotion(undefined, 200, { now: NOW }).valid).toBe(false);
+    expect(evaluatePromotion(promotion({ active: false }), 200, { now: NOW }).valid).toBe(false);
     expect(
-      evaluatePromotion(promotion({ endsAt: '2026-10-01T00:00:00.000Z' }), 20_000, { now: NOW }).valid,
+      evaluatePromotion(promotion({ endsAt: '2026-10-01T00:00:00.000Z' }), 200, { now: NOW }).valid,
     ).toBe(false);
     expect(
-      evaluatePromotion(promotion({ startsAt: '2026-11-01T00:00:00.000Z' }), 20_000, { now: NOW }).valid,
+      evaluatePromotion(promotion({ startsAt: '2026-11-01T00:00:00.000Z' }), 200, { now: NOW }).valid,
     ).toBe(false);
   });
 
   it('rejects invalid date values', () => {
-    const result = evaluatePromotion(promotion({ startsAt: 'not-a-date' }), 20_000, { now: NOW });
+    const result = evaluatePromotion(promotion({ startsAt: 'not-a-date' }), 200, { now: NOW });
     expect(result.valid).toBe(false);
     expect(result.reason).toContain('ვადები');
   });
 
   it('enforces minimum order, global usage and per-user limits', () => {
-    expect(evaluatePromotion(promotion({ minOrder: 30_000 }), 20_000, { now: NOW }).valid).toBe(false);
+    expect(evaluatePromotion(promotion({ minOrder: 300 }), 200, { now: NOW }).valid).toBe(false);
     expect(
-      evaluatePromotion(promotion({ usageLimit: 5, usageCount: 5 }), 20_000, { now: NOW }).valid,
+      evaluatePromotion(promotion({ usageLimit: 5, usageCount: 5 }), 200, { now: NOW }).valid,
     ).toBe(false);
     expect(
-      evaluatePromotion(promotion({ perUserLimit: 1 }), 20_000, { now: NOW, userRedemptions: 1 }).valid,
+      evaluatePromotion(promotion({ perUserLimit: 1 }), 200, { now: NOW, userRedemptions: 1 }).valid,
     ).toBe(false);
     expect(
-      evaluatePromotion(promotion({ usageLimit: 0, perUserLimit: 0 }), 20_000, {
+      evaluatePromotion(promotion({ usageLimit: 0, perUserLimit: 0 }), 200, {
         now: NOW,
         userRedemptions: 9,
       }).valid,
@@ -119,56 +119,56 @@ describe('evaluatePromotion', () => {
 
 describe('calculateShipping', () => {
   it('applies standard shipping below the free threshold', () => {
-    expect(calculateShipping(settings, 29_999, 'standard')).toBe(1_500);
-    expect(calculateShipping(settings, 30_000, 'standard')).toBe(0);
+    expect(calculateShipping(settings, 299.99, 'standard')).toBe(15);
+    expect(calculateShipping(settings, 300, 'standard')).toBe(0);
   });
 
   it('always charges express shipping, including above the free threshold', () => {
-    expect(calculateShipping(settings, 90_000, 'express')).toBe(3_000);
+    expect(calculateShipping(settings, 900, 'express')).toBe(30);
   });
 });
 
 describe('computeOrderTotals', () => {
   it('calculates discount before deciding free shipping', () => {
     const totals = computeOrderTotals({
-      lines: [{ unitPrice: 32_000, quantity: 1 }],
+      lines: [{ unitPrice: 320, quantity: 1 }],
       promotion: promotion({ value: 10 }),
       settings,
       deliveryMethod: 'standard',
       now: NOW,
     });
     expect(totals).toMatchObject({
-      subtotal: 32_000,
-      discountTotal: 3_200,
-      shippingFee: 1_500,
-      total: 30_300,
+      subtotal: 320,
+      discountTotal: 32,
+      shippingFee: 15,
+      total: 303,
     });
     expect(totals.promo.valid).toBe(true);
   });
 
   it('ignores an invalid promotion and still prices the order safely', () => {
     const totals = computeOrderTotals({
-      lines: [{ unitPrice: 12_000, quantity: 1 }],
+      lines: [{ unitPrice: 120, quantity: 1 }],
       promotion: promotion({ active: false }),
       settings,
       deliveryMethod: 'standard',
       now: NOW,
     });
     expect(totals.discountTotal).toBe(0);
-    expect(totals.shippingFee).toBe(1_500);
-    expect(totals.total).toBe(13_500);
+    expect(totals.shippingFee).toBe(15);
+    expect(totals.total).toBe(135);
     expect(totals.promo.valid).toBe(false);
   });
 
   it('never returns a negative total', () => {
     const totals = computeOrderTotals({
-      lines: [{ unitPrice: 2_000, quantity: 1 }],
-      promotion: promotion({ type: 'fixed', value: 10_000, minOrder: 0 }),
+      lines: [{ unitPrice: 20, quantity: 1 }],
+      promotion: promotion({ type: 'fixed', value: 100, minOrder: 0 }),
       settings,
       deliveryMethod: 'express',
       now: NOW,
     });
-    expect(totals.discountTotal).toBe(2_000);
-    expect(totals.total).toBe(3_000);
+    expect(totals.discountTotal).toBe(20);
+    expect(totals.total).toBe(30);
   });
 });

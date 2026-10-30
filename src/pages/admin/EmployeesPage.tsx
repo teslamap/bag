@@ -166,7 +166,7 @@ export function AdminEmployeesPage() {
       <div className="grid gap-3 sm:grid-cols-3">
         <AdminStat label="პერსონალი" value={staff.length} sub={`${staff.filter((user) => user.role === 'manager').length} მენეჯერი`} icon={<UserCog className="h-4 w-4" aria-hidden />} />
         <AdminStat label="ადმინისტრატორი" value={staff.filter((user) => user.role === 'admin').length} sub="სრული წვდომა" icon={<ShieldCheck className="h-4 w-4" aria-hidden />} accent="warning" />
-        <AdminStat label="აქტიური სესიები" value={staff.filter((user) => user.status === 'active').length} sub="შეჩერებულები ვერ შედიან" icon={<UserRoundCheck className="h-4 w-4" aria-hidden />} accent="success" />
+        <AdminStat label="აქტიური სესიები" value={staff.filter((user) => user.status === 'active').length} sub="დაბლოკვა იმართება Firebase Authentication-ში" icon={<UserRoundCheck className="h-4 w-4" aria-hidden />} accent="success" />
       </div>
 
       <AdminPanel noPadding>
@@ -268,9 +268,9 @@ export function AdminEmployeesPage() {
           <AdminInput label="ტელეფონი" required value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} error={errors.phone} />
           <AdminSelect label="როლი" value={form.role} onChange={(event) => setRole(event.target.value as 'manager' | 'admin')} error={errors.role}>
             <option value="manager">მენეჯერი</option>
-            <option value="admin">ადმინისტრატორი</option>
+            <option value="admin" disabled={snapshot.backendMode === 'firebase'}>ადმინისტრატორი</option>
           </AdminSelect>
-          <AdminSelect label="სტატუსი" value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as EmployeeForm['status'] })}>
+          <AdminSelect label="სტატუსი" disabled={snapshot.backendMode === 'firebase'} value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as EmployeeForm['status'] })}>
             <option value="active">აქტიური</option>
             <option value="suspended">შეჩერებული</option>
           </AdminSelect>
@@ -278,6 +278,7 @@ export function AdminEmployeesPage() {
             label={editing === 'new' ? 'დროებითი პაროლი' : 'ახალი პაროლი (არასავალდებულო)'}
             type="password"
             required={editing === 'new'}
+            disabled={snapshot.backendMode === 'firebase' && editing !== 'new'}
             value={form.password}
             onChange={(event) => setForm({ ...form, password: event.target.value })}
             error={errors.password}
@@ -296,14 +297,14 @@ export function AdminEmployeesPage() {
                   label={PERMISSION_LABELS[permission]}
                   checked={form.role === 'admin' || form.permissions.includes(permission)}
                   onChange={() => togglePermission(permission)}
-                  disabled={form.role === 'admin'}
+                  disabled={form.role === 'admin' || (snapshot.backendMode === 'firebase' && !['orders', 'products', 'inventory'].includes(permission))}
                 />
               ))}
             </div>
           </div>
           <p className="flex items-start gap-2 text-[9px] leading-relaxed text-[var(--text-secondary)] sm:col-span-2">
             <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0 text-[var(--tone-accent-text)]" aria-hidden />
-            მენეჯერი ვერ ხედავს ფინანსურ რეპორტებს, აუდიტის ჟურნალს, პარამეტრებს ან სხვა თანამშრომლების მართვას — მაშინაც კი, თუ ბრაუზერში პირდაპირ URL-ს გახსნის, მონაცემები სერვერზე იფილტრება.
+            მენეჯერი ვერ ხედავს ფინანსურ რეპორტებს, აუდიტის ჟურნალს, პარამეტრებს ან სხვა თანამშრომლების მართვას — მაშინაც კი, თუ ბრაუზერში პირდაპირ URL-ს გახსნის, წვდომები შეესაბამება არსებული MAKU-ს უფლებებს.
           </p>
         </div>
       </AdminModal>

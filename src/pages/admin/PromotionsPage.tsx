@@ -208,7 +208,7 @@ export function AdminPromotionsPage({ canManage = true }: { canManage?: boolean 
       <AdminPageHeader
         eyebrow="მარკეტინგი"
         title="პრომოკოდები"
-        description="შექმენით და მართეთ ფასდაკლების კამპანიები. გამოყენების ლიმიტები და ვადები სერვერზე მოწმდება."
+        description="შექმენით და მართეთ ფასდაკლების კამპანიები. კოდები ხელმისაწვდომია MAKU-ს ორივე ვერსიაში."
         actions={canManage && <AdminButton size="sm" leftIcon={<Plus className="h-3.5 w-3.5" aria-hidden />} onClick={openNew}>ახალი პრომოკოდი</AdminButton>}
       />
 
@@ -307,7 +307,7 @@ export function AdminPromotionsPage({ canManage = true }: { canManage?: boolean 
         open={editing !== null}
         onClose={() => setEditing(null)}
         title={editing === 'new' ? 'ახალი პრომოკოდი' : 'პრომოკოდის რედაქტირება'}
-        description="კოდი ავტომატურად გადაიქცევა დიდ ასოებად. ვადები და ლიმიტები სერვერზე მოწმდება."
+        description="კოდი ავტომატურად გადაიქცევა დიდ ასოებად. კოდის პირობები შეკვეთის გაგზავნამდე მოწმდება."
         size="lg"
         footer={
           <div className="flex justify-end gap-2">

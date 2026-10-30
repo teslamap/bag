@@ -12,8 +12,10 @@ import { formatMoney } from '@/lib/utils';
 export function HomePage() {
   const snapshot = useBackendSnapshot();
   const active = snapshot.products.filter((product) => product.status === 'active');
-  const featured = active.filter((product) => product.featured).slice(0, 4);
-  const newArrivals = active.filter((product) => product.isNew).slice(0, 4);
+  const markedFeatured = active.filter((product) => product.featured);
+  const featured = (markedFeatured.length ? markedFeatured : active).slice(0, 4);
+  const markedNew = active.filter((product) => product.isNew);
+  const newArrivals = (markedNew.length ? markedNew : [...active].sort((a,b) => b.createdAt.localeCompare(a.createdAt))).slice(0, 4);
   const bestsellers = active.filter((product) => product.bestseller).slice(0, 3);
   const reviews = snapshot.reviews.filter((review) => review.status === 'approved').slice(0, 3);
 

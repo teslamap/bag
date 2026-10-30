@@ -1,6 +1,6 @@
 /**
  * Shared domain types for the MAKU commerce platform.
- * All monetary values are stored as integer tetri (1 GEL = 100 tetri).
+ * All monetary values are GEL (lari), rounded to two decimal places.
  */
 
 export type Money = number;
@@ -210,8 +210,10 @@ export interface Promotion {
   code: string;
   description: string;
   type: PromotionType;
-  /** Percent (1-100) or fixed tetri, depending on type. */
+  /** Percent (1-100) or fixed GEL, depending on type. */
   value: number;
+  /** Optional legacy MAKU cap, in GEL. */
+  maxDiscount?: Money;
   minOrder: Money;
   startsAt: string;
   endsAt: string;

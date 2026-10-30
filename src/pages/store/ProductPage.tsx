@@ -120,7 +120,7 @@ export function ProductPage() {
             offers: {
               '@type': 'Offer',
               priceCurrency: 'GEL',
-              price: (selectedPrice / 100).toFixed(2),
+              price: (selectedPrice).toFixed(2),
               availability: selectedStock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
               url: window.location.href,
             },

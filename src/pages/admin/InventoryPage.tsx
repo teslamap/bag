@@ -107,7 +107,7 @@ export function AdminInventoryPage({ basePath = '/admin', canManage = true }: { 
         variant.sku,
         variant.stock,
         product.lowStockThreshold,
-        ((product.price + variant.priceDelta) / 100).toFixed(2),
+        ((product.price + variant.priceDelta)).toFixed(2),
         variant.stock === 0 ? 'ამოწურული' : variant.stock <= product.lowStockThreshold ? 'დაბალი' : 'ნორმა',
       ]),
     );

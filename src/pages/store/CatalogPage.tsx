@@ -13,10 +13,10 @@ const PAGE_SIZE = 9;
 
 const PRICE_RANGES = [
   { id: 'all', label: 'ყველა ფასი', min: 0, max: Infinity },
-  { id: 'under-200', label: '200 ₾-მდე', min: 0, max: 20_000 },
-  { id: '200-500', label: '200 – 500 ₾', min: 20_000, max: 50_000 },
-  { id: '500-1000', label: '500 – 1000 ₾', min: 50_000, max: 100_000 },
-  { id: 'over-1000', label: '1000 ₾ და მეტი', min: 100_000, max: Infinity },
+  { id: 'under-200', label: '200 ₾-მდე', min: 0, max: 200 },
+  { id: '200-500', label: '200 – 500 ₾', min: 200, max: 500 },
+  { id: '500-1000', label: '500 – 1000 ₾', min: 500, max: 1000 },
+  { id: 'over-1000', label: '1000 ₾ და მეტი', min: 1000, max: Infinity },
 ];
 
 const FILTER_TITLES: Record<string, string> = {

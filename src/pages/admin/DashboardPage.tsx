@@ -66,7 +66,7 @@ export function AdminDashboardPage() {
     downloadCsv(
       `maku-report-${range}.csv`,
       ['თარიღი', 'შეკვეთები', 'შემოსავალი (₾)'],
-      data.series.map((point) => [point.date, point.orders, (point.revenue / 100).toFixed(2)]),
+      data.series.map((point) => [point.date, point.orders, (point.revenue).toFixed(2)]),
     );
   };
 

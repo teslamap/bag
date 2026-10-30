@@ -547,7 +547,7 @@ export function AdminProductEditorPage({ basePath = '/admin' }: { basePath?: str
                       </td>
                       <td><input value={variant.sku} onChange={(event) => updateVariant(index, { sku: event.target.value.toUpperCase() })} aria-label="SKU" className="admin-input h-7 w-32 px-2 text-[10px]" /></td>
                       <td><input type="number" min={0} value={variant.stock} onChange={(event) => updateVariant(index, { stock: Math.max(0, Math.floor(Number(event.target.value))) })} aria-label="მარაგი" className="admin-input h-7 w-20 px-2 text-[10px]" /></td>
-                      <td><input type="number" step="0.01" value={variant.priceDelta / 100} onChange={(event) => updateVariant(index, { priceDelta: Math.round(Number(event.target.value) * 100) })} aria-label="ფასის სხვაობა" className="admin-input h-7 w-24 px-2 text-[10px]" /></td>
+                      <td><input type="number" step="0.01" value={variant.priceDelta} onChange={(event) => updateVariant(index, { priceDelta: parseMoneyInput(event.target.value) })} aria-label="ფასის სხვაობა" className="admin-input h-7 w-24 px-2 text-[10px]" /></td>
                       <td><button type="button" onClick={() => update('variants', form.variants.filter((_, variantIndex) => variantIndex !== index))} className="flex h-7 w-7 items-center justify-center rounded text-[var(--text-secondary)] hover:text-[var(--tone-danger-text)]" aria-label="ვარიანტის წაშლა"><Trash2 className="h-3 w-3" aria-hidden /></button></td>
                     </tr>
                   ))}

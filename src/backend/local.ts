@@ -72,8 +72,8 @@ import {
 } from '@/lib/utils';
 import type { z } from 'zod';
 
-const DB_KEY = 'bag.local.db.v1';
-const TOKEN_KEY = 'bag.local.session.v1';
+const DB_KEY = 'bag.local.db.v2.gel';
+const TOKEN_KEY = 'bag.local.session.v2';
 const DB_VERSION = 1;
 
 export interface StorageLike {
@@ -161,9 +161,9 @@ function emptySnapshot(): DataSnapshot {
       supportPhone: '',
       address: '',
       currency: 'GEL',
-      freeShippingThreshold: 30_000,
-      standardShippingFee: 1_500,
-      expressShippingFee: 3_000,
+      freeShippingThreshold: 300,
+      standardShippingFee: 15,
+      expressShippingFee: 30,
       codEnabled: false,
       codInstructions: '',
       lowStockThreshold: 3,
@@ -960,7 +960,7 @@ export class LocalBackend implements CommerceBackend {
           audience: 'staff',
           type: 'order',
           title: `ახალი შეკვეთა ${order.number}`,
-          message: `${user.firstName} ${user.lastName} · ${order.items.length} ნივთი · ${(order.total / 100).toFixed(0)} ₾`,
+          message: `${user.firstName} ${user.lastName} · ${order.items.length} ნივთი · ${(order.total).toFixed(0)} ₾`,
           link: '/admin/orders',
         });
         this.notifyCustomer(

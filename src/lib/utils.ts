@@ -8,8 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 
 const LARI = '₾';
 
-export function formatMoney(minor: Money, options?: { compact?: boolean }): string {
-  const value = minor / 100;
+export function formatMoney(value: Money, options?: { compact?: boolean }): string {
   if (options?.compact && Math.abs(value) >= 1000) {
     return `${LARI}${(value / 1000).toLocaleString('en-US', { maximumFractionDigits: 1 })}k`;
   }
@@ -32,11 +31,10 @@ export function parseMoneyInput(value: string): number {
   const normalized = value.replace(/[^\d.,]/g, '').replace(',', '.');
   const parsed = Number.parseFloat(normalized);
   if (!Number.isFinite(parsed)) return 0;
-  return Math.round(parsed * 100);
+  return Math.round((parsed + Number.EPSILON) * 100) / 100;
 }
 
-export function moneyToInput(minor: Money): string {
-  const value = minor / 100;
+export function moneyToInput(value: Money): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(2);
 }
 
