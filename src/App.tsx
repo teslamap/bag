@@ -85,7 +85,7 @@ function RouteLoader() {
 export function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <ScrollToTop />
         <Suspense fallback={<RouteLoader />}>
           <Routes>

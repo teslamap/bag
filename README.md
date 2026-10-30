@@ -11,6 +11,10 @@ npm run build
 npm test
 ```
 
+## Public preview
+
+GitHub Actions deploys the V2 frontend to GitHub Pages from `main`. The Pages build uses `/bag/` as its base path and includes a direct-route fallback. The deployed site reads the existing MAKU Firebase data; this does not publish or change the original MAKU website.
+
 Firebase is the default. Set `VITE_BACKEND_MODE=demo` for an isolated, empty local preview. Connection errors never silently become local orders.
 
 ## Compatibility contract
