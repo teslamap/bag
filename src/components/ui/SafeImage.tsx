@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { ImageOff } from 'lucide-react';
-import { cn, imageSrc, imageSrcSet } from '@/lib/utils';
+import { cn, imageSrc, imageSrcSet, publicAsset } from '@/lib/utils';
 
 interface SafeImageProps {
   source: string;
@@ -33,7 +33,7 @@ export function SafeImage({
 }: SafeImageProps) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(!source);
-  const src = source ? imageSrc(source, width) : '/images/placeholder.svg';
+  const src = source ? imageSrc(source, width) : publicAsset('/images/placeholder.svg');
   const srcSet = source ? imageSrcSet(source) : undefined;
 
   useEffect(() => {

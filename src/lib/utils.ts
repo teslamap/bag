@@ -160,8 +160,12 @@ export function isSeedAsset(source: string): boolean {
   return /^[a-z0-9][a-z0-9-]*$/.test(source);
 }
 
+export function publicAsset(path: string): string {
+  return `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`;
+}
+
 export function imageSrc(source: string, width = 960): string {
-  if (isSeedAsset(source)) return `/images/opt/${source}-${width}.webp`;
+  if (isSeedAsset(source)) return publicAsset(`/images/opt/${source}-${width}.webp`);
   return source;
 }
 
@@ -172,7 +176,7 @@ export function imageSrcSet(source: string): string | undefined {
 
 export function primaryImage(product: Pick<Product, 'images'>, width = 960): string {
   const source = product.images[0]?.source;
-  return source ? imageSrc(source, width) : '/images/placeholder.svg';
+  return source ? imageSrc(source, width) : publicAsset('/images/placeholder.svg');
 }
 
 export function primaryImageAlt(product: Pick<Product, 'images' | 'name'>): string {
